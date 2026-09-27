@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: tienda-online
+  profiles:
+    active: dev
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
+
+tienda:
+  jwt:
+    # En producción, sobreescribe esto con la variable de entorno TIENDA_JWT_SECRET
+    secret: "cambia-esta-clave-en-produccion-usa-al-menos-32-bytes-aleatorios"
+    expiracion-minutos: 60

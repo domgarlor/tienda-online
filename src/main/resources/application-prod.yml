@@ -1,0 +1,15 @@
+# Perfil de referencia (ver capítulo 6 del Manual TiendaOnline).
+# Para usarlo de verdad, descomenta la dependencia de postgresql en el pom.xml
+# y arranca con -Dspring.profiles.active=prod
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tienda
+    username: ${DB_USER:tienda}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+logging:
+  level:
+    com.tiendaonline: WARN

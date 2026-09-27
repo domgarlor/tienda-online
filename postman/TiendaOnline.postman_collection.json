@@ -1,0 +1,505 @@
+{
+  "info": {
+    "_postman_id": "b6e2f6b0-3d1a-4b7e-9d0a-tiendaonline01",
+    "name": "TiendaOnline API",
+    "description": "Colección para probar la API de TiendaOnline (proyecto complementario del Manual TiendaOnline). Los logins guardan el token automáticamente en variables de colección, así que no hace falta copiarlo a mano: usa {{token}} para las requests como cliente y {{token_admin}} para las de ADMIN.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_ana",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_luis",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_admin",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login - ana (CLIENTE)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const dataAna = pm.response.json();",
+                  "    pm.collectionVariables.set('token', dataAna.token);",
+                  "    pm.collectionVariables.set('token_ana', dataAna.token);",
+                  "    console.log('Token de ana guardado en {{token}} y {{token_ana}}');",
+                  "} else {",
+                  "    console.warn('Login de ana falló, no se actualiza el token: ' + pm.response.text());",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"ana\",\n  \"password\": \"ana123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Usuario semilla ligado a la cliente Ana Torres (id 1). Al enviarla, el script de Tests guarda el token en {{token}} y {{token_ana}}."
+          },
+          "response": []
+        },
+        {
+          "name": "Login - luis (CLIENTE)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const dataLuis = pm.response.json();",
+                  "    pm.collectionVariables.set('token', dataLuis.token);",
+                  "    pm.collectionVariables.set('token_luis', dataLuis.token);",
+                  "    console.log('Token de luis guardado en {{token}} y {{token_luis}}');",
+                  "} else {",
+                  "    console.warn('Login de luis falló, no se actualiza el token: ' + pm.response.text());",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"luis\",\n  \"password\": \"luis123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Usuario semilla ligado al cliente Luis Fernández (id 2)."
+          },
+          "response": []
+        },
+        {
+          "name": "Login - admin (ADMIN)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const dataAdmin = pm.response.json();",
+                  "    pm.collectionVariables.set('token_admin', dataAdmin.token);",
+                  "    console.log('Token de admin guardado en {{token_admin}}');",
+                  "} else {",
+                  "    console.warn('Login de admin falló, no se actualiza el token: ' + pm.response.text());",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Usuario ADMIN, sin cliente asociado. Guarda el token en {{token_admin}}, usado por las requests de las carpetas ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Registro nuevo cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const dataRegistro = pm.response.json();",
+                  "    pm.collectionVariables.set('token', dataRegistro.token);",
+                  "    console.log('Cliente creado con id ' + dataRegistro.clienteId + ', token guardado en {{token}}');",
+                  "} else {",
+                  "    console.warn('Registro falló (¿el username ya existe?), no se actualiza el token: ' + pm.response.text());",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"marta\",\n  \"password\": \"marta123\",\n  \"nombre\": \"Marta Ruiz\",\n  \"email\": \"marta@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/registro",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Crea un Cliente + Usuario nuevos a la vez y devuelve un token (auto-login). Cambia el username si ya existe."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Productos",
+      "item": [
+        {
+          "name": "Listar productos (público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/productos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener producto por id (público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/productos/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear producto (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Alfombrilla XL\",\n  \"precio\": 15.50,\n  \"stock\": 50\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/productos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ]
+            },
+            "description": "Requiere haber ejecutado antes 'Login - admin'."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Clientes (ADMIN)",
+      "item": [
+        {
+          "name": "Listar clientes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clientes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener cliente por id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clientes/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Cliente de prueba\",\n  \"email\": \"{{$randomEmail}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clientes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "description": "Crea solo el registro de Cliente (sin credenciales de login). El email es aleatorio ({{$randomEmail}}, variable dinamica de Postman) para no chocar con el indice unico si repites la request. Para un cliente que tambien pueda autenticarse, usa Registro nuevo cliente en la carpeta Auth."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Pedidos",
+      "item": [
+        {
+          "name": "Crear pedido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lineas\": [\n    { \"productoId\": 1, \"cantidad\": 2 },\n    { \"productoId\": 5, \"cantidad\": 1 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/pedidos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "pedidos"
+              ]
+            },
+            "description": "El clienteId se deduce del token ({{token}}), no se envía en el body. Ejecuta antes 'Login - ana' o 'Login - luis'."
+          },
+          "response": []
+        },
+        {
+          "name": "Mis pedidos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pedidos/mios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "mios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener pedido por id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pedidos/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "1"
+              ]
+            },
+            "description": "Da 403 si el pedido no pertenece al usuario autenticado (salvo que sea ADMIN)."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar pedidos de un cliente (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pedidos/cliente/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "cliente",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

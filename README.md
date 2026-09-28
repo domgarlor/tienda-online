@@ -2,6 +2,8 @@
 
 Proyecto Spring Boot que acompaña al [Manual TiendaOnline](https://domgarlor.github.io/manual-tienda-online/): una tienda online sencilla con catálogo, clientes, pedidos y autenticación con JWT. Usa el mismo dominio y los mismos paquetes que el curso (`catalogo`, `clientes`, `pedidos`, `comun`, `seguridad`).
 
+Tiene un frontend propio: [tienda-online-web](https://github.com/domgarlor/tienda-online-web) (React + Vite), que necesita este backend arrancado en `localhost:8080`. `SecurityConfig` ya permite CORS desde `http://localhost:5173` (el puerto por defecto de Vite) para que funcione en desarrollo.
+
 ## Requisitos
 
 - JDK 17+

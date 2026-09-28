@@ -1,15 +1,30 @@
-# Perfil de referencia (ver capítulo 6 del Manual TiendaOnline).
-# Para usarlo de verdad, descomenta la dependencia de postgresql en el pom.xml
-# y arranca con -Dspring.profiles.active=prod
+# Perfil de producción. Se activa con la variable de entorno SPRING_PROFILES_ACTIVE=prod
+# (Spring Boot la reconoce automáticamente, no hace falta ningún flag al arrancar).
+# Ver DEPLOY.md para la lista completa de variables de entorno necesarias.
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/tienda
-    username: ${DB_USER:tienda}
-    password: ${DB_PASSWORD:}
+    # DB_URL debe ser una URL JDBC completa, por ejemplo:
+    # jdbc:postgresql://ep-xxxx.eu-central-1.aws.neon.tech/tienda?sslmode=require
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: validate
+      # "update" en vez de "validate": no hay herramienta de migraciones (Flyway/Liquibase) en este
+      # proyecto de práctica, así que dejamos que Hibernate cree/actualice el esquema él solo.
+      # Para un proyecto real con datos de verdad, esto se sustituiría por migraciones versionadas.
+      ddl-auto: update
 
 logging:
   level:
-    com.tiendaonline: WARN
+    com.tiendaonline: INFO
+
+tienda:
+  jwt:
+    # Sin valor por defecto a propósito: si no se define TIENDA_JWT_SECRET, el arranque falla
+    # en vez de usar silenciosamente la clave de desarrollo en producción.
+    secret: ${TIENDA_JWT_SECRET}
+  cors:
+    allowed-origins: ${TIENDA_CORS_ALLOWED_ORIGINS}
+  admin:
+    password: ${TIENDA_ADMIN_PASSWORD}

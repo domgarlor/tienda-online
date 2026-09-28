@@ -7,6 +7,7 @@ import com.tiendaonline.clientes.ClienteRepository;
 import com.tiendaonline.seguridad.Rol;
 import com.tiendaonline.seguridad.Usuario;
 import com.tiendaonline.seguridad.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -20,13 +21,16 @@ public class DataInitializer implements CommandLineRunner {
     private final ClienteRepository clienteRepository;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final String adminPassword;
 
     public DataInitializer(ProductoRepository productoRepository, ClienteRepository clienteRepository,
-                            UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+                            UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,
+                            @Value("${tienda.admin.password:admin123}") String adminPassword) {
         this.productoRepository = productoRepository;
         this.clienteRepository = clienteRepository;
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.adminPassword = adminPassword;
     }
 
     @Override
@@ -46,7 +50,7 @@ public class DataInitializer implements CommandLineRunner {
 
             usuarioRepository.save(new Usuario("ana", passwordEncoder.encode("ana123"), Rol.CLIENTE, ana));
             usuarioRepository.save(new Usuario("luis", passwordEncoder.encode("luis123"), Rol.CLIENTE, luis));
-            usuarioRepository.save(new Usuario("admin", passwordEncoder.encode("admin123"), Rol.ADMIN, null));
+            usuarioRepository.save(new Usuario("admin", passwordEncoder.encode(adminPassword), Rol.ADMIN, null));
         }
     }
 }

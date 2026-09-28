@@ -31,11 +31,11 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // Permite que el frontend (Vite en localhost:5173) llame a la API en otro puerto/origen.
+    // Permite que el frontend llame a la API desde otro origen (ver CorsProperties / TIENDA_CORS_ALLOWED_ORIGINS).
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource(CorsProperties corsProperties) {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(corsProperties.getAllowedOrigins());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Content-Type", "Authorization"));
 

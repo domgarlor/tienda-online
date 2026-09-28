@@ -12,10 +12,17 @@ spring:
         format_sql: true
 
 server:
-  port: 8080
+  # Render (y la mayoría de PaaS) inyectan su propio puerto en la variable PORT.
+  port: ${PORT:8080}
 
 tienda:
   jwt:
     # En producción, sobreescribe esto con la variable de entorno TIENDA_JWT_SECRET
     secret: "cambia-esta-clave-en-produccion-usa-al-menos-32-bytes-aleatorios"
     expiracion-minutos: 60
+  cors:
+    # Admite varios orígenes separados por coma. En producción, sobreescribe con TIENDA_CORS_ALLOWED_ORIGINS
+    allowed-origins: http://localhost:5173
+  admin:
+    # En producción, sobreescribe con TIENDA_ADMIN_PASSWORD (ver DEPLOY.md)
+    password: admin123

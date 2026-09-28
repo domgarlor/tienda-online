@@ -4,6 +4,8 @@ Proyecto Spring Boot que acompaña al [Manual TiendaOnline](https://domgarlor.gi
 
 Tiene un frontend propio: [tienda-online-web](https://github.com/domgarlor/tienda-online-web) (React + Vite), que necesita este backend arrancado en `localhost:8080`. `SecurityConfig` ya permite CORS desde `http://localhost:5173` (el puerto por defecto de Vite) para que funcione en desarrollo.
 
+Para desplegarlo gratis en internet con auto-deploy desde GitHub (backend, frontend y base de datos), ver **[DEPLOY.md](DEPLOY.md)**.
+
 ## Requisitos
 
 - JDK 17+

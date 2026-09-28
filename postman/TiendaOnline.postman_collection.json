@@ -30,6 +30,11 @@
       "key": "token_admin",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "pedidoId",
+      "value": "1",
+      "type": "string"
     }
   ],
   "item": [
@@ -44,13 +49,23 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "",
                   "if (pm.response.code === 200) {",
                   "    const dataAna = pm.response.json();",
                   "    pm.collectionVariables.set('token', dataAna.token);",
                   "    pm.collectionVariables.set('token_ana', dataAna.token);",
-                  "    console.log('Token de ana guardado en {{token}} y {{token_ana}}');",
+                  "",
+                  "    pm.test('Devuelve token no vacio', function () {",
+                  "        pm.expect(dataAna.token).to.be.a('string').and.not.empty;",
+                  "    });",
+                  "    pm.test('Usuario y rol correctos', function () {",
+                  "        pm.expect(dataAna.username).to.eql('ana');",
+                  "        pm.expect(dataAna.rol).to.eql('CLIENTE');",
+                  "        pm.expect(dataAna.clienteId).to.eql(1);",
+                  "    });",
                   "} else {",
-                  "    console.warn('Login de ana falló, no se actualiza el token: ' + pm.response.text());",
+                  "    console.warn('Login de ana fallo, no se actualiza el token: ' + pm.response.text());",
                   "}"
                 ]
               }
@@ -91,13 +106,23 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "",
                   "if (pm.response.code === 200) {",
                   "    const dataLuis = pm.response.json();",
                   "    pm.collectionVariables.set('token', dataLuis.token);",
                   "    pm.collectionVariables.set('token_luis', dataLuis.token);",
-                  "    console.log('Token de luis guardado en {{token}} y {{token_luis}}');",
+                  "",
+                  "    pm.test('Devuelve token no vacio', function () {",
+                  "        pm.expect(dataLuis.token).to.be.a('string').and.not.empty;",
+                  "    });",
+                  "    pm.test('Usuario y rol correctos', function () {",
+                  "        pm.expect(dataLuis.username).to.eql('luis');",
+                  "        pm.expect(dataLuis.rol).to.eql('CLIENTE');",
+                  "        pm.expect(dataLuis.clienteId).to.eql(2);",
+                  "    });",
                   "} else {",
-                  "    console.warn('Login de luis falló, no se actualiza el token: ' + pm.response.text());",
+                  "    console.warn('Login de luis fallo, no se actualiza el token: ' + pm.response.text());",
                   "}"
                 ]
               }
@@ -138,12 +163,21 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "",
                   "if (pm.response.code === 200) {",
                   "    const dataAdmin = pm.response.json();",
                   "    pm.collectionVariables.set('token_admin', dataAdmin.token);",
-                  "    console.log('Token de admin guardado en {{token_admin}}');",
+                  "",
+                  "    pm.test('Devuelve token no vacio', function () {",
+                  "        pm.expect(dataAdmin.token).to.be.a('string').and.not.empty;",
+                  "    });",
+                  "    pm.test('Usuario y rol correctos', function () {",
+                  "        pm.expect(dataAdmin.username).to.eql('admin');",
+                  "        pm.expect(dataAdmin.rol).to.eql('ADMIN');",
+                  "    });",
                   "} else {",
-                  "    console.warn('Login de admin falló, no se actualiza el token: ' + pm.response.text());",
+                  "    console.warn('Login de admin fallo, no se actualiza el token: ' + pm.response.text());",
                   "}"
                 ]
               }
@@ -184,12 +218,24 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "pm.test('Status 201 (creado) o 409 (username ya existente)', function () {",
+                  "    pm.expect([201, 409]).to.include(pm.response.code);",
+                  "});",
+                  "",
                   "if (pm.response.code === 201) {",
                   "    const dataRegistro = pm.response.json();",
                   "    pm.collectionVariables.set('token', dataRegistro.token);",
+                  "",
+                  "    pm.test('Devuelve token y clienteId', function () {",
+                  "        pm.expect(dataRegistro.token).to.be.a('string').and.not.empty;",
+                  "        pm.expect(dataRegistro.clienteId).to.be.a('number');",
+                  "    });",
                   "    console.log('Cliente creado con id ' + dataRegistro.clienteId + ', token guardado en {{token}}');",
                   "} else {",
-                  "    console.warn('Registro falló (¿el username ya existe?), no se actualiza el token: ' + pm.response.text());",
+                  "    pm.test('El 409 es por usuario duplicado', function () {",
+                  "        pm.expect(pm.response.json().codigo).to.eql('USUARIO_YA_EXISTE');",
+                  "    });",
+                  "    console.warn('Registro fallo (usuario ya existe), no se actualiza el token');",
                   "}"
                 ]
               }
@@ -243,7 +289,27 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Devuelve un array de productos con los campos esperados', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "    pm.expect(body.length).to.be.above(0);",
+                  "    pm.expect(body[0]).to.have.property('id');",
+                  "    pm.expect(body[0]).to.have.property('nombre');",
+                  "    pm.expect(body[0]).to.have.property('precio');",
+                  "    pm.expect(body[0]).to.have.property('stock');",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Obtener producto por id (público)",
@@ -262,7 +328,21 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Es el producto id=1', function () {",
+                  "    pm.expect(pm.response.json().id).to.eql(1);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Crear producto (ADMIN)",
@@ -295,7 +375,23 @@
             },
             "description": "Requiere haber ejecutado antes 'Login - admin'."
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Devuelve el producto creado', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('id');",
+                  "    pm.expect(body.nombre).to.eql('Alfombrilla XL');",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -324,7 +420,23 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Devuelve un array de clientes', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "    pm.expect(body.length).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Obtener cliente por id",
@@ -349,7 +461,21 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Es el cliente id=1', function () {",
+                  "    pm.expect(pm.response.json().id).to.eql(1);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Crear cliente",
@@ -382,7 +508,23 @@
             },
             "description": "Crea solo el registro de Cliente (sin credenciales de login). El email es aleatorio ({{$randomEmail}}, variable dinamica de Postman) para no chocar con el indice unico si repites la request. Para un cliente que tambien pueda autenticarse, usa Registro nuevo cliente en la carpeta Auth."
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Devuelve el cliente creado con id', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('id');",
+                  "    pm.expect(body.nombre).to.eql('Cliente de prueba');",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -420,7 +562,28 @@
             },
             "description": "El clienteId se deduce del token ({{token}}), no se envía en el body. Ejecuta antes 'Login - ana' o 'Login - luis'."
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const pedido = pm.response.json();",
+                  "    pm.collectionVariables.set('pedidoId', pedido.id);",
+                  "",
+                  "    pm.test('El pedido tiene 2 lineas y queda PENDIENTE', function () {",
+                  "        pm.expect(pedido.lineas).to.be.an('array').with.lengthOf(2);",
+                  "        pm.expect(pedido.estado).to.eql('PENDIENTE');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Mis pedidos",
@@ -445,7 +608,21 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Devuelve un array de pedidos', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Obtener pedido por id",
@@ -459,19 +636,34 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/pedidos/1",
+              "raw": "{{base_url}}/api/pedidos/{{pedidoId}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "pedidos",
-                "1"
+                "{{pedidoId}}"
               ]
             },
             "description": "Da 403 si el pedido no pertenece al usuario autenticado (salvo que sea ADMIN)."
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('El pedido devuelto es el esperado', function () {",
+                  "    const idEsperado = pm.collectionVariables.get('pedidoId');",
+                  "    pm.expect(String(pm.response.json().id)).to.eql(String(idEsperado));",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Listar pedidos de un cliente (ADMIN)",
@@ -497,7 +689,23 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Devuelve pedidos del cliente 1', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "    body.forEach(function (p) { pm.expect(p.cliente.id).to.eql(1); });",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     }

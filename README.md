@@ -76,6 +76,17 @@ curl -X POST http://localhost:8080/api/auth/registro \
   -d '{"username":"marta","password":"marta123","nombre":"Marta Ruiz","email":"marta@example.com"}'
 ```
 
+## Probar la API automáticamente (sin Postman a mano)
+
+La colección `postman/TiendaOnline.postman_collection.json` trae aserciones (`pm.test`) en las 14 requests: status code, forma del body, y que los datos sean los esperados. Se ejecuta entera con [Newman](https://www.npmjs.com/package/newman), el runner de línea de comandos de Postman, sin abrir ningún navegador:
+
+```bash
+# con la app ya arrancada en localhost:8080
+npx newman run postman/TiendaOnline.postman_collection.json
+```
+
+Da un resumen verde/rojo con las 31 aserciones (login, catálogo, clientes, pedidos, control de acceso). Es repetible: se puede lanzar varias veces seguidas sin que choque con datos de ejecuciones anteriores (el email de "Crear cliente" es aleatorio y "Registro nuevo cliente" acepta tanto 201 como 409 si el usuario ya existe).
+
 ## Consola H2
 
 `http://localhost:8080/h2-console` — JDBC URL `jdbc:h2:mem:tienda`, usuario `sa`, sin contraseña.

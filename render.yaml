@@ -22,3 +22,33 @@ services:
         sync: false
       - key: TIENDA_CORS_ALLOWED_ORIGINS
         sync: false
+
+  # Entorno de PRE: mismo Dockerfile, pero desplegando desde la rama "pre" y
+  # con su propia base de datos (rama "pre" en Neon) y sus propios secretos.
+  # Usa el mismo perfil "prod" de Spring (Postgres real vía variables de
+  # entorno) — lo que distingue PRE de producción es la infraestructura
+  # (servicio, BBDD y secretos separados), no la configuración de Spring.
+  - type: web
+    name: tienda-online-api-pre
+    runtime: docker
+    plan: free
+    branch: pre
+    healthCheckPath: /api/productos
+    autoDeploy: true
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      # Secretos propios de PRE: nunca reutilizar los de producción.
+      - key: TIENDA_JWT_SECRET
+        generateValue: true
+      - key: TIENDA_ADMIN_PASSWORD
+        generateValue: true
+      # Rellenar a mano con la rama "pre" de Neon (ver DEPLOY.md):
+      - key: DB_URL
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: TIENDA_CORS_ALLOWED_ORIGINS
+        sync: false

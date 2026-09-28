@@ -1,0 +1,69 @@
+name: E2E contra PRE (tras deploy en Render)
+
+# Igual que e2e-prod.yml, pero para el servicio tienda-online-api-pre,
+# disparado por push a la rama "pre" en vez de a "master".
+#
+# PROD_API_URL/PROD_URL de abajo son placeholders: Render/Vercel pueden
+# añadir un sufijo aleatorio a la URL final si el nombre exacto no está
+# libre (como pasó en producción). Actualízalos en cuanto tengas las URLs
+# reales de tienda-online-api-pre y del Preview de Vercel para la rama pre.
+on:
+  push:
+    branches: [pre]
+  workflow_dispatch:
+
+env:
+  PRE_API_URL: https://tienda-online-api-pre.onrender.com
+  PRE_URL: https://tienda-online-web-git-pre-nos18.vercel.app
+
+jobs:
+  wait-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Esperar a que Render publique el nuevo build
+        run: |
+          echo "Esperando a que $PRE_API_URL responda..."
+          for i in $(seq 1 30); do
+            if curl -sf "$PRE_API_URL/api/productos" > /dev/null; then
+              echo "Backend de PRE respondiendo (intento $i)."
+              break
+            fi
+            echo "Intento $i: aún no responde, esperando 10s..."
+            sleep 10
+            if [ "$i" = "30" ]; then
+              echo "El backend de PRE no respondió a tiempo."
+              exit 1
+            fi
+          done
+
+      - name: Margen extra para que Render termine de sustituir el contenedor
+        run: sleep 60
+
+      - name: Checkout del frontend, rama pre (ahí viven los tests E2E)
+        uses: actions/checkout@v4
+        with:
+          repository: domgarlor/tienda-online-web
+          ref: pre
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Instalar navegadores de Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Ejecutar tests E2E contra PRE
+        run: npm run test:e2e:pre
+
+      - name: Subir informe de Playwright si algo falla
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-pre
+          path: playwright-report/
+          retention-days: 7

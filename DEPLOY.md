@@ -96,6 +96,74 @@ Ahora que conoces la URL real del frontend:
 Con esto, abrir la URL del frontend ya debería mostrar el catálogo real
 sirviéndose desde el backend en Render con datos persistidos en Postgres.
 
+## 5. Entorno de PRE (opcional)
+
+Un segundo entorno completo, aislado de producción, para probar cambios antes
+de que lleguen a `master`. Todo se organiza alrededor de una rama compartida
+llamada **`pre`** en los dos repos.
+
+**Flujo de trabajo**: rama de feature → merge a `pre` → se despliega solo en
+PRE → los E2E corren ahí automáticamente → si todo va bien, merge de `pre` a
+`master` → se despliega solo en producción → los E2E corren ahí también.
+
+### 5.1. Crear la rama `pre`
+
+En los dos repos, a partir de `master`:
+
+```bash
+git checkout -b pre
+git push -u origin pre
+```
+
+### 5.2. Neon: rama de base de datos
+
+En el dashboard de Neon, dentro del mismo proyecto: **"Branches" → "Create
+branch"**, nombre `pre`, origen la rama de producción (`main`). Te da su
+propia connection string, aislada de los datos reales. Conviértela a formato
+JDBC igual que en el paso 1 (prefijo `jdbc:`, host **sin** `-pooler`, sin
+`channel_binding`).
+
+### 5.3. Render: segundo servicio
+
+`render.yaml` ya incluye el servicio `tienda-online-api-pre` (desplegando
+desde la rama `pre`). En Render: **"New" → "Blueprint"** sobre el mismo repo
+— detectará el servicio nuevo. Rellena `DB_URL`/`DB_USER`/`DB_PASSWORD` con
+la rama `pre` de Neon del paso anterior, y `TIENDA_CORS_ALLOWED_ORIGINS` con
+la URL del Preview de Vercel (paso siguiente). `TIENDA_JWT_SECRET` y
+`TIENDA_ADMIN_PASSWORD` se generan solos, independientes de los de
+producción.
+
+Cuando termine, guarda la URL que te dé (algo como
+`https://tienda-online-api-pre-xxxx.onrender.com`).
+
+### 5.4. Vercel: Preview de la rama `pre`
+
+En cuanto la rama `pre` exista en GitHub, Vercel genera sola un Preview con
+una URL estable del tipo `tienda-online-web-git-pre-<tu-cuenta>.vercel.app`
+(la ves en la pestaña "Deployments" del proyecto, filtrando por esa rama).
+
+Añade la variable de entorno `VITE_API_URL` con el valor de la URL de Render
+`-pre` del paso anterior, pero **acotada solo a Preview + rama `pre`** (al
+añadir la variable, en "Environments" elige "Preview" y luego restringe a la
+rama `pre` en vez de dejarla para todos los previews). Así no pisa el valor
+de `VITE_API_URL` de Production.
+
+### 5.5. Cerrar el círculo y actualizar las URLs reales
+
+1. Con la URL real del Preview de Vercel, vuelve a Render (`-pre`) y
+   actualiza `TIENDA_CORS_ALLOWED_ORIGINS`.
+2. Actualiza los placeholders con las URLs reales en:
+   - `tienda-online-web/playwright.pre.config.ts` (`PRE_URL`)
+   - `tienda-online-web/e2e/wake-up-backend-pre.ts` (`PRE_API_URL`)
+   - `tienda-online-web/.github/workflows/e2e-pre.yml` y
+     `tienda-online/.github/workflows/e2e-pre.yml` (variables `PRE_URL` /
+     `PRE_API_URL` al principio del archivo)
+3. Haz commit y push de esos ajustes a la rama `pre` en ambos repos.
+
+A partir de aquí, cualquier push a `pre` (en cualquiera de los dos repos)
+despliega solo en PRE y lanza los E2E ahí — exactamente igual que con
+producción, pero sin tocarla.
+
 ## Notas y límites conocidos (proyecto de práctica, no producción real)
 
 - **Cold starts**: el plan gratis de Render duerme el backend tras 15 min sin

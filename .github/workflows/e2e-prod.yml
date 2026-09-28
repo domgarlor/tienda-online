@@ -1,0 +1,66 @@
+name: E2E contra producción (tras deploy en Render)
+
+# Render no publica un evento de "deploy completado" a GitHub (a diferencia
+# de Vercel), así que aquí solo podemos reaccionar al push y esperar a que
+# el backend responda. No es una confirmación perfecta de que la versión
+# NUEVA esté sirviendo (solo de que el servicio está arriba), pero es
+# suficiente para este proyecto de práctica.
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+env:
+  PROD_API_URL: https://tienda-online-api-oi7y.onrender.com
+  PROD_URL: https://tienda-online-web-three.vercel.app
+
+jobs:
+  wait-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Esperar a que Render publique el nuevo build
+        run: |
+          echo "Esperando a que $PROD_API_URL responda..."
+          for i in $(seq 1 30); do
+            if curl -sf "$PROD_API_URL/api/productos" > /dev/null; then
+              echo "Backend respondiendo (intento $i)."
+              break
+            fi
+            echo "Intento $i: aún no responde, esperando 10s..."
+            sleep 10
+            if [ "$i" = "30" ]; then
+              echo "El backend no respondió a tiempo."
+              exit 1
+            fi
+          done
+
+      - name: Margen extra para que Render termine de sustituir el contenedor
+        run: sleep 60
+
+      - name: Checkout del frontend (ahí viven los tests E2E)
+        uses: actions/checkout@v4
+        with:
+          repository: domgarlor/tienda-online-web
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Instalar navegadores de Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Ejecutar tests E2E contra producción
+        run: npm run test:e2e:prod
+
+      - name: Subir informe de Playwright si algo falla
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

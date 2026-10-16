@@ -24,7 +24,7 @@ jobs:
         run: |
           echo "Esperando a que $PRE_API_URL responda..."
           for i in $(seq 1 30); do
-            if curl -sf "$PRE_API_URL/api/productos" > /dev/null; then
+            if curl -sf -m 120 "$PRE_API_URL/api/productos" > /dev/null; then
               echo "Backend de PRE respondiendo (intento $i)."
               break
             fi

@@ -21,8 +21,8 @@ public class StripePagoGateway implements PagoGateway {
             .setAmount(importeCentimos)
             .setCurrency(moneda)
             .putMetadata("cliente_id", String.valueOf(clienteId))
-            .setAutomaticPaymentMethods(
-                PaymentIntentCreateParams.AutomaticPaymentMethods.builder().setEnabled(true).build())
+            // Solo tarjeta: evita métodos con redirección (Klarna, etc.) y hace los tests deterministas.
+            .addAllowedPaymentMethodType(PaymentIntentCreateParams.AllowedPaymentMethodType.CARD)
             .build();
         try {
             PaymentIntent intent = PaymentIntent.create(params, opciones());

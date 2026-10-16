@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 // Sin claves de Stripe: el comportamiento anterior (pedido sin pasarela) no debe cambiar.
-@SpringBootTest
+@SpringBootTest(properties = {"tienda.stripe.secret-key=", "tienda.stripe.publishable-key="})
 @AutoConfigureMockMvc
 class PagosDesactivadosIntegrationTest {
 

@@ -13,6 +13,17 @@ public class CrearPedidoRequest {
     @Valid
     private List<LineaPedidoRequest> lineas;
 
+    // Solo se exige cuando los pagos con tarjeta están activados en el entorno.
+    private String paymentIntentId;
+
+    public String getPaymentIntentId() {
+        return paymentIntentId;
+    }
+
+    public void setPaymentIntentId(String paymentIntentId) {
+        this.paymentIntentId = paymentIntentId;
+    }
+
     public List<LineaPedidoRequest> getLineas() {
         return lineas;
     }

@@ -26,3 +26,9 @@ tienda:
   admin:
     # En producción, sobreescribe con TIENDA_ADMIN_PASSWORD (ver DEPLOY.md)
     password: admin123
+  stripe:
+    # Pagos con Stripe en MODO TEST. Vacío = pagos desactivados (flujo de pedidos clásico).
+    # Define TIENDA_STRIPE_SECRET_KEY (sk_test_...) y TIENDA_STRIPE_PUBLISHABLE_KEY (pk_test_...).
+    # NUNCA pongas claves reales (sk_live_...) en este repositorio ni en este proyecto.
+    secret-key: ${TIENDA_STRIPE_SECRET_KEY:}
+    publishable-key: ${TIENDA_STRIPE_PUBLISHABLE_KEY:}

@@ -22,7 +22,7 @@ jobs:
         run: |
           echo "Esperando a que $PROD_API_URL responda..."
           for i in $(seq 1 30); do
-            if curl -sf "$PROD_API_URL/api/productos" > /dev/null; then
+            if curl -sf -m 120 "$PROD_API_URL/api/productos" > /dev/null; then
               echo "Backend respondiendo (intento $i)."
               break
             fi

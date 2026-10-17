@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
+    boolean existsByPaymentIntentId(String paymentIntentId);
+
     // join fetch trae las líneas en la misma consulta, evitando el problema N+1
     @Query("select distinct p from Pedido p join fetch p.lineas where p.id = :id")
     Optional<Pedido> buscarConLineas(Long id);

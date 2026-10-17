@@ -2,6 +2,7 @@ package com.tiendaonline.pedidos;
 
 import com.tiendaonline.clientes.Cliente;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -37,7 +38,19 @@ public class Pedido {
     @Enumerated(EnumType.STRING)
     private EstadoPedido estado;
 
+    // Id del PaymentIntent de Stripe que pagó este pedido. Único: un pago solo vale para un pedido.
+    @Column(unique = true)
+    private String paymentIntentId;
+
     public Pedido() {
+    }
+
+    public String getPaymentIntentId() {
+        return paymentIntentId;
+    }
+
+    public void setPaymentIntentId(String paymentIntentId) {
+        this.paymentIntentId = paymentIntentId;
     }
 
     public void agregarLinea(LineaPedido linea) {

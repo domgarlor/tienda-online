@@ -6,6 +6,9 @@ import com.tiendaonline.clientes.ClienteNoEncontradoException;
 import com.tiendaonline.pedidos.PedidoNoEncontradoException;
 import com.tiendaonline.seguridad.UsuarioYaExisteException;
 import org.springframework.dao.DataIntegrityViolationException;
+import com.tiendaonline.pagos.PagoInvalidoException;
+import com.tiendaonline.pagos.PagoYaUsadoException;
+import com.tiendaonline.pagos.PagosNoConfiguradosException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -39,6 +42,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> stockInsuficiente(StockInsuficienteException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
             .body(new ErrorResponse("STOCK_INSUFICIENTE", ex.getMessage()));
+    }
+
+    @ExceptionHandler(PagoInvalidoException.class)
+    public ResponseEntity<ErrorResponse> pagoInvalido(PagoInvalidoException ex) {
+        return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED)
+            .body(new ErrorResponse("PAGO_INVALIDO", ex.getMessage()));
+    }
+
+    @ExceptionHandler(PagoYaUsadoException.class)
+    public ResponseEntity<ErrorResponse> pagoYaUsado(PagoYaUsadoException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(new ErrorResponse("PAGO_YA_USADO", ex.getMessage()));
+    }
+
+    @ExceptionHandler(PagosNoConfiguradosException.class)
+    public ResponseEntity<ErrorResponse> pagosNoConfigurados(PagosNoConfiguradosException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+            .body(new ErrorResponse("PAGOS_NO_CONFIGURADOS", ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
